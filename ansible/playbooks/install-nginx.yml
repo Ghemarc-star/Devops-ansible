@@ -1,0 +1,31 @@
+﻿---
+- name: Install and configure Nginx
+  hosts: web_servers
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+    
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+    
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+    
+    - name: Create test page
+      copy:
+        content: |
+          <html>
+            <body>
+              <h1>Hello from Ansible!</h1>
+              <p>Deployed by Ansible on {{ ansible_date_time.date }}</p>
+            </body>
+          </html>
+        dest: /var/www/html/index.html
