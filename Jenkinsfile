@@ -1,4 +1,4 @@
-﻿pipeline {
+pipeline {
     agent any
     
     environment {
@@ -30,8 +30,8 @@
                 dir('terraform') {
                     sh """
                         terraform apply -auto-approve \
-                            -var="project_id=\" \
-                            -var="region=\"
+                            -var="project_id=${PROJECT_ID}" \
+                            -var="region=${REGION}"
                     """
                 }
                 echo "✅ GKE cluster created"
@@ -43,9 +43,9 @@
                 script {
                     sh """
                         gcloud container clusters get-credentials ansible-cluster \
-                            --region \ \
-                            --project \
-                        kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type==\"ExternalIP\")].address}' | tr ' ' '\\n' > ansible/inventories/hosts
+                            --region ${REGION} \
+                            --project ${PROJECT_ID}
+                        kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | tr ' ' '\n' > ansible/inventories/hosts
                     """
                 }
                 echo "✅ Node IPs saved to Ansible inventory"
@@ -73,7 +73,7 @@
                     sh """
                         echo "Waiting for Nginx..."
                         sleep 60
-                        curl -s http://\ | grep "Hello from Ansible"
+                        curl -s http://${ip} | grep "Hello from Ansible"
                     """
                 }
                 echo "✅ Website verified!"
